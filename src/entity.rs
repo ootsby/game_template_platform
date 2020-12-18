@@ -82,13 +82,13 @@ impl Entity {
         Ok(())
     }
 
-    pub fn update(&mut self, gravity: &Vector2<f32>) {
+    pub fn update(&mut self, gravity: &Vector2<f32>, dt:f32) {
         if let Some(physics_system) = &mut self.physics_system {
             if self.affected_by_gravity {
                 physics_system.apply_force(gravity);
             }
 
-            physics_system.update(&mut self.location);
+            physics_system.update(&mut self.location, dt);
         }
     }
 }

@@ -65,14 +65,14 @@ impl World {
         Ok(())
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self, dt:f32) {
         let gravity = &self.gravity;
         self.entities.iter_mut().for_each(|entity| {
             if entity.location.y > 700.0 && entity.get_velocity()[1] > 0.0{
                 entity.location.y = 700.0;
                 entity.set_velocity(entity.get_velocity()[0], -entity.get_velocity()[1])
             }
-            entity.update(gravity)
+            entity.update(gravity, dt)
         });
     }
 }

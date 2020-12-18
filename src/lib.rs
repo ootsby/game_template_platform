@@ -62,7 +62,7 @@ impl GameState {
 impl EventHandler for GameState {
     fn update(&mut self, context: &mut Context) -> GameResult {
         while check_update_time(context, self.target_update_fps) {
-            self.world.update();
+            self.world.update(1.0/self.target_update_fps as f32);
         }
         Ok(())
     }
@@ -70,8 +70,7 @@ impl EventHandler for GameState {
     fn draw(&mut self, context: &mut Context) -> GameResult {
         ggez::graphics::clear(context, BLACK);
 
-        let lag = ggez::timer::remaining_update_time(context).as_secs_f32()
-            * self.target_update_fps as f32;
+        let lag = ggez::timer::remaining_update_time(context).as_secs_f32();
         self.world.draw(context, &self.drawables, lag)?;
 
         ggez::graphics::present(context)

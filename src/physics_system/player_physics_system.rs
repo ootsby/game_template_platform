@@ -25,18 +25,18 @@ impl PhysicsSystem for PlayerPhysicsSystem {
         self.acceleration += force;
     }
 
-    fn update(&mut self, location: &mut ggez::graphics::Rect) {
-        self.velocity += self.acceleration;
-        location.x += self.velocity.x;
-        location.y += self.velocity.y;
+    fn update(&mut self, location: &mut ggez::graphics::Rect, dt: f32) {
+        self.velocity += self.acceleration * dt;
+        location.x += self.velocity.x * dt;
+        location.y += self.velocity.y * dt;
         self.acceleration *= 0.0;
     }
 
     fn get_velocity(&self) -> &Vector2<f32> {
         &self.velocity
     }
-    
-    fn set_velocity(&mut self, x:f32, y:f32) {
+
+    fn set_velocity(&mut self, x: f32, y: f32) {
         self.velocity[0] = x;
         self.velocity[1] = y;
     }
