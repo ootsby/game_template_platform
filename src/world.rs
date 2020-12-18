@@ -5,7 +5,7 @@ use ggez::mint::Point2;
 use ggez::nalgebra::Vector2;
 use ggez::{Context, GameResult};
 
-use crate::drawables::Drawables;
+use crate::{drawables::Drawables, physics_system};
 use crate::entity::Entity;
 
 pub struct World {
@@ -42,7 +42,20 @@ impl World {
     }
 
     pub fn draw(&self, context: &mut Context, drawables: &Drawables, lag: f32) -> GameResult {
-        push_transform(context, Some(DrawParam::new().dest(self.dest).to_matrix()));
+        let mut camera_pos = self.entities[0].get_extrapolated_position(lag);
+        camera_pos[0] = 0.0; //-camera_pos[0] + 640.0;
+        camera_pos[1] = 0.0; //-camera_pos[1] + 360.0;
+        push_transform(
+            context,
+            Some(
+                DrawParam::new()
+                    .dest(Point2 {
+                        x: camera_pos[0],
+                        y: camera_pos[1],
+                    })
+                    .to_matrix(),
+            ),
+        );
         apply_transformations(context)?;
         draw(context, &drawables.grid, DrawParam::new())?;
         self.entities
@@ -53,12 +66,14 @@ impl World {
     }
 
     pub fn update(&mut self) {
-        self.dest.x = -self.entities[0].location.x + 640.0;
-        self.dest.y = -self.entities[0].location.y + 350.0;
         let gravity = &self.gravity;
-        self.entities
-            .iter_mut()
-            .for_each(|entity| entity.update(gravity));
+        self.entities.iter_mut().for_each(|entity| {
+            if entity.location.y > 700.0 && entity.get_velocity()[1] > 0.0{
+                entity.location.y = 700.0;
+                entity.set_velocity(entity.get_velocity()[0], -entity.get_velocity()[1])
+            }
+            entity.update(gravity)
+        });
     }
 }
 

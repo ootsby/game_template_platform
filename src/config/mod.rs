@@ -9,12 +9,12 @@ pub struct Config {
 
 impl Default for Config {
     fn default() -> Self {
-        let target_update_fps = 50;
-        let gravity_force = 0.001;
+        let target_update_fps = 10;
+        let gravity_force = 0.5;
         let world_width = 5000.0;
         let world_height = 5000.0;
-        let world_unit_width = 50.0;
-        let world_unit_height = 50.0;
+        let world_unit_width = 250.0;
+        let world_unit_height = 250.0;
 
         Self {
             target_update_fps,

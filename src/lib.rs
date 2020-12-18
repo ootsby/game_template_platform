@@ -34,12 +34,22 @@ impl GameState {
 
         // create player
         let player = Entity::default()
-            .set_location(50.0, 50.0)
+            .set_location(325.0, 50.0)
             .set_draw_system(Box::new(PlayerDrawSystem))
             .set_affected_by_gravity()
             .set_physics_system(Box::new(PlayerPhysicsSystem::default()));
         // add player to world
         world.add_entity(player);
+
+        // create second player to compare rendering
+        let player2 = Entity::default()
+        .set_location(375.0, 50.0)
+        .set_draw_system(Box::new(PlayerDrawSystem))
+        .set_extrapolation_active(false)
+        .set_affected_by_gravity()
+        .set_physics_system(Box::new(PlayerPhysicsSystem::default()));
+        // add player to world
+        world.add_entity(player2);
 
         Ok(Self {
             world,

@@ -27,11 +27,6 @@ impl PhysicsSystem for PlayerPhysicsSystem {
 
     fn update(&mut self, location: &mut ggez::graphics::Rect) {
         self.velocity += self.acceleration;
-        if self.velocity.y > 10.0 {
-            self.velocity.y = 10.0;
-        } else if self.velocity.y < -10.0 {
-            self.velocity.y = -10.0;
-        }
         location.x += self.velocity.x;
         location.y += self.velocity.y;
         self.acceleration *= 0.0;
@@ -39,5 +34,10 @@ impl PhysicsSystem for PlayerPhysicsSystem {
 
     fn get_velocity(&self) -> &Vector2<f32> {
         &self.velocity
+    }
+    
+    fn set_velocity(&mut self, x:f32, y:f32) {
+        self.velocity[0] = x;
+        self.velocity[1] = y;
     }
 }

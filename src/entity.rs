@@ -1,4 +1,4 @@
-use ggez::graphics::Rect;
+use ggez::{graphics::{Rect}};
 use ggez::nalgebra::Vector2;
 use ggez::{Context, GameResult};
 
@@ -9,6 +9,7 @@ use crate::physics_system::PhysicsSystem;
 #[derive(Debug)]
 pub struct Entity {
     pub location: Rect,
+    extrapolation_active: bool,
     draw_system: Option<Box<dyn DrawSystem>>,
     affected_by_gravity: bool,
     physics_system: Option<Box<dyn PhysicsSystem>>,
@@ -19,6 +20,11 @@ impl Entity {
         self.location.x = x;
         self.location.y = y;
 
+        self
+    }
+
+    pub fn set_extrapolation_active(mut self, is_active: bool) -> Self {
+        self.extrapolation_active = is_active;
         self
     }
 
@@ -38,12 +44,36 @@ impl Entity {
         self
     }
 
+    pub fn get_velocity(&self) -> Vector2<f32>{
+        let mut ret_vel = Vector2::new(0.0, 0.0);
+        if let Some(physics_system) = &self.physics_system {
+            ret_vel.copy_from(physics_system.get_velocity());
+        }
+        ret_vel
+    }
+    
+    pub fn set_velocity(&mut self, x:f32, y:f32){
+        if let Some(physics_system) = &mut self.physics_system {
+            physics_system.set_velocity(x, y);
+        }        
+    }
+
+    pub fn get_extrapolated_position(&self, lag:f32) -> Vector2<f32>{
+        let mut ret_position = Vector2::new(self.location.x, self.location.y);
+        if let Some(physics_system) = &self.physics_system {
+            let part_velocity = physics_system.get_velocity() * lag;
+            ret_position += part_velocity;
+        }
+        ret_position
+    }
+
     pub fn draw(&self, context: &mut Context, drawables: &Drawables, lag: f32) -> GameResult {
         if let Some(draw_system) = &self.draw_system {
+            let pos = if self.extrapolation_active{ self.get_extrapolated_position(lag) } else { Vector2::new(self.location.x, self.location.y) };
             draw_system.draw(
                 drawables,
                 context,
-                &self.location,
+                &pos,
                 lag,
                 &self.physics_system,
             )?;
@@ -66,12 +96,14 @@ impl Entity {
 impl Default for Entity {
     fn default() -> Self {
         let location = Rect::new(0.0, 0.0, 0.0, 0.0);
+        let extrapolation_active = true;
         let draw_system = None;
         let affected_by_gravity = false;
         let physics_system = None;
 
         Self {
             location,
+            extrapolation_active,
             draw_system,
             affected_by_gravity,
             physics_system,
@@ -102,7 +134,7 @@ mod test {
     fn test_add_player_draw_system() {
         let mut entity = Entity::default();
         assert!(matches!(entity.draw_system, None));
-        let player_draw_system = Box::new(PlayerDrawSystem);
+        let player_draw_system = Box::new(PlayerDrawSystem{});
         entity = entity.set_draw_system(player_draw_system);
         assert!(!matches!(entity.draw_system, None));
     }
