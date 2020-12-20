@@ -43,8 +43,8 @@ impl World {
 
     pub fn draw(&self, context: &mut Context, drawables: &Drawables, lag: f32) -> GameResult {
         let mut camera_pos = self.entities[0].get_extrapolated_position(lag);
-        camera_pos[0] = 0.0; //-camera_pos[0] + 640.0;
-        camera_pos[1] = 0.0; //-camera_pos[1] + 360.0;
+        camera_pos[0] = -camera_pos[0] + 640.0;
+        camera_pos[1] = -camera_pos[1] + 360.0;
         push_transform(
             context,
             Some(
@@ -66,12 +66,16 @@ impl World {
     }
 
     pub fn update(&mut self, dt:f32) {
-        let gravity = &self.gravity;
+        //let gravity = &self.gravity;
         self.entities.iter_mut().for_each(|entity| {
-            if entity.location.y > 700.0 && entity.get_velocity()[1] > 0.0{
-                entity.location.y = 700.0;
-                entity.set_velocity(entity.get_velocity()[0], -entity.get_velocity()[1])
-            }
+            // if entity.location.y > 700.0 && entity.get_velocity()[1] > 0.0{
+            //     entity.location.y = 700.0;
+            //     entity.set_velocity(entity.get_velocity()[0], -entity.get_velocity()[1])
+            // }
+            let gravity = &ggez::nalgebra::Vector2::new(
+                (640.0-entity.location.x)/2.4,
+                (360.0-entity.location.y)/1.2 
+            );
             entity.update(gravity, dt)
         });
     }
